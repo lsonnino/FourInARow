@@ -22,10 +22,16 @@ class Console(object):
             self.game = Game()
             self.winner = constants.EMPTY_PIECE
 
-    def draw_text(self, x, y, text, color=constants.TEXT_COLOR):
-        text_surface = self.font.render(text, False, color)
+    def draw_text(self, x, y, text, color=constants.TEXT_COLOR, align_right=False):
+        text_surface = self.font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        if align_right:
+            text_rect.right = x
+        else:
+            text_rect.left = x
+        text_rect.top = y
         # Merge the texts with the window
-        self.window.blit(text_surface, (x, y))
+        self.window.blit(text_surface, text_rect)
 
     def key_binding(self):
         # EVENTS
@@ -77,6 +83,14 @@ class Console(object):
                     'Winner is ' + ('BLUE' if self.winner == constants.BLUE_PIECE else 'RED') + ' !!'
                 )
 
+            if self.pause:
+                self.draw_text(
+                    constants.WIN_SIZE[0] - constants.PIECE_OFFSET,
+                    constants.PIECE_OFFSET,
+                    '| PAUSE |',
+                    align_right=True
+                )
+
         self.refresh_graphics()
 
     def request_action(self, player_id, action_space):
@@ -89,3 +103,6 @@ class Console(object):
         self.pause = False
         self.winner = constants.EMPTY_PIECE
         self.game.reset()
+
+    def quit(self):
+        pygame.quit()

@@ -9,7 +9,7 @@ def request_human_action(action_space):
         return action_space[1]
     elif keys[pygame.K_LEFT]:
         return action_space[0]
-    else:
+    elif keys[pygame.K_RIGHT]:
         return action_space[2]
 
 

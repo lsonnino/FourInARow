@@ -12,22 +12,26 @@ class Map(object):
         dx = 0
         dy = 0
 
+        count = 0
+
         while 0 <= x + dx < COLUMNS:
             if dx >= len(mask):
                 break
 
             while 0 <= y + dy < ROWS:
-                if dy >= len(mask[x]):
+                if dy >= len(mask[dx]):
                     break
 
                 if mask[dx][dy] and self.field[x + dx][y + dy] != player:
                     return False
+                elif mask[dx][dy]:
+                    count += 1
 
                 dy += 1
 
             dx += 1
 
-        return True
+        return count == 4  # 4 in a row are needed to win
 
     def __get_column_height(self, x):
         if x < 0 or x >= COLUMNS:
@@ -199,8 +203,7 @@ class Game(object):
             self.__right()
         elif action == PLACE:
             self.__place()
-
-        self.__end_turn()
+            self.__end_turn()
 
     def draw(self, window):
         window.fill(BACKGROUND_COLOR)

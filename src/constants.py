@@ -68,7 +68,7 @@ PIECE_DIAMETER = 60
 PIECE_OFFSET = 15
 
 SELECTOR_WIDTH = 4
-SELECTOR_RADIUS = 4
+SELECTOR_RADIUS = 10
 
 # ----------------------------
 # Colors
@@ -78,7 +78,7 @@ BACKGROUND_COLOR = (230, 230, 240)
 EMPTY_COLOR = (100, 100, 100)
 RED_COLOR = (255, 59, 48)
 BLUE_COLOR = (0, 122, 255)
-SELECTOR_COLOR = (0, 255, 0)
+SELECTOR_COLOR = (0, 150, 131)
 TEXT_COLOR = (77, 76, 76)
 
 # ----------------------------

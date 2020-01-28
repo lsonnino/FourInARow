@@ -17,7 +17,7 @@ def set_session():
 
     if PLAYERS == HUMAN_VS_HUMAN:
         PLAYER_1_ACTION_REQUEST = user.request_human_action
-        PLAYER_2_ACTION_REQUEST = user.request_ai_action
+        PLAYER_2_ACTION_REQUEST = user.request_human_action
     else:
         print('Unsupported players')
         exit(1)
@@ -36,6 +36,8 @@ def main():
 
                 if not console.pause:
                     console.reset()
+
+    console.quit()
 
 
 set_session()
