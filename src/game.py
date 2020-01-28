@@ -93,38 +93,46 @@ class Game(object):
         else:
             color = EMPTY_COLOR
 
-        absolute_x = WIN_SIZE[0] - COLUMNS * PIECE_RADIUS - (COLUMNS - 1) * PIECE_OFFSET  # Get left-right margin
-        absolute_x /= 2  # Remove right margin
-        absolute_x += x * (COLUMNS * PIECE_RADIUS + PIECE_OFFSET)  # move to the correct column
+        absolute_x = WIN_SIZE[0] - COLUMNS * PIECE_DIAMETER - (COLUMNS - 1) * PIECE_OFFSET  # Get left-right margin
+        absolute_x = absolute_x / 2  # Remove right margin
+        absolute_x += x * (PIECE_DIAMETER + PIECE_OFFSET)  # move to the correct column
 
-        field_height = ROWS * PIECE_RADIUS - (ROWS - 1) * PIECE_OFFSET
+        field_height = ROWS * PIECE_DIAMETER - (ROWS - 1) * PIECE_OFFSET
         absolute_y = WIN_SIZE[1] - field_height  # Get top-bottom margin
-        absolute_y /= 2  # Remove bottom margin
+        absolute_y = absolute_y / 2  # Remove bottom margin
         absolute_y += field_height  # move to bottom of the field
-        absolute_y -= y * (ROWS * PIECE_RADIUS + PIECE_OFFSET)  # move to the right row
+        absolute_y -= y * (PIECE_DIAMETER + PIECE_OFFSET)  # move to the right row
 
-        pygame.draw.circle(window, color, (int(absolute_x), int(absolute_y)), PIECE_RADIUS)
+        pygame.draw.circle(
+            window,
+            color,
+            (
+                int(absolute_x + PIECE_DIAMETER / 2),
+                int(absolute_y + PIECE_DIAMETER / 2)
+            ),
+            int(PIECE_DIAMETER / 2)
+        )
 
     def __draw_selector(self, surface):
         """
         Based on this tutorial:
             https://archives.seul.org/pygame/users/Mar-2008/msg00538.html
         """
-        x = WIN_SIZE[0] - COLUMNS * PIECE_RADIUS - (COLUMNS - 1) * PIECE_OFFSET  # Get left-right margin
-        x /= 2  # Remove right margin
-        x += self.current_column * (COLUMNS * PIECE_RADIUS + PIECE_OFFSET)  # move to the correct column
+        x = WIN_SIZE[0] - COLUMNS * PIECE_DIAMETER - (COLUMNS - 1) * PIECE_OFFSET  # Get left-right margin
+        x = x / 2  # Remove right margin
+        x += self.current_column * (PIECE_DIAMETER + PIECE_OFFSET)  # move to the correct column
         x -= (PIECE_OFFSET + SELECTOR_WIDTH) / 2  # move next to selected column
 
-        field_height = ROWS * PIECE_RADIUS - (ROWS - 1) * PIECE_OFFSET
+        field_height = ROWS * PIECE_DIAMETER - (ROWS - 1) * PIECE_OFFSET
         y = WIN_SIZE[1] - field_height  # Get top-bottom margin
-        y /= 2  # Remove bottom margin
+        y = y / 2  # Remove bottom margin
         y += (PIECE_OFFSET + SELECTOR_RADIUS) / 2  # move on op of selected column
 
         rect = pygame.Rect(
             x,
             y,
-            PIECE_RADIUS + PIECE_OFFSET - SELECTOR_WIDTH,
-            field_height + PIECE_OFFSET - SELECTOR_WIDTH
+            PIECE_DIAMETER + PIECE_OFFSET + SELECTOR_WIDTH,
+            field_height + PIECE_OFFSET + SELECTOR_WIDTH
         )
 
         clip = surface.get_clip()
