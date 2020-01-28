@@ -97,7 +97,7 @@ class Game(object):
         absolute_x = absolute_x / 2  # Remove right margin
         absolute_x += x * (PIECE_DIAMETER + PIECE_OFFSET)  # move to the correct column
 
-        field_height = ROWS * PIECE_DIAMETER - (ROWS - 1) * PIECE_OFFSET
+        field_height = ROWS * PIECE_DIAMETER + (ROWS - 1) * PIECE_OFFSET
         absolute_y = WIN_SIZE[1] - field_height  # Get top-bottom margin
         absolute_y = absolute_y / 2  # Remove bottom margin
         absolute_y += field_height  # move to bottom of the field
@@ -108,7 +108,7 @@ class Game(object):
             color,
             (
                 int(absolute_x + PIECE_DIAMETER / 2),
-                int(absolute_y + PIECE_DIAMETER / 2)
+                int(absolute_y - PIECE_DIAMETER / 2)
             ),
             int(PIECE_DIAMETER / 2)
         )
@@ -123,16 +123,17 @@ class Game(object):
         x += self.current_column * (PIECE_DIAMETER + PIECE_OFFSET)  # move to the correct column
         x -= (PIECE_OFFSET + SELECTOR_WIDTH) / 2  # move next to selected column
 
-        field_height = ROWS * PIECE_DIAMETER - (ROWS - 1) * PIECE_OFFSET
+        field_height = ROWS * PIECE_DIAMETER + (ROWS - 1) * PIECE_OFFSET
+        rectangle_height = field_height + PIECE_OFFSET + SELECTOR_WIDTH
         y = WIN_SIZE[1] - field_height  # Get top-bottom margin
         y = y / 2  # Remove bottom margin
-        y += (PIECE_OFFSET + SELECTOR_RADIUS) / 2  # move on op of selected column
+        y -= (PIECE_OFFSET + SELECTOR_RADIUS) / 2  # move on op of selected column
 
         rect = pygame.Rect(
             x,
             y,
             PIECE_DIAMETER + PIECE_OFFSET + SELECTOR_WIDTH,
-            field_height + PIECE_OFFSET + SELECTOR_WIDTH
+            rectangle_height
         )
 
         clip = surface.get_clip()
