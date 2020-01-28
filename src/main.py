@@ -9,6 +9,13 @@ IS_PLAYER_1_AI = False
 IS_PLAYER_2_AI = False
 
 
+# todo list
+#   - bug when detecting diagonal
+#   - use state in user.request_ai_action
+#   - reward system (even for the looser !!)
+
+
+
 def set_session():
     global IS_PLAYER_1_AI, IS_PLAYER_2_AI, SHOW_GRAPHICS, min_exploration_rate, max_exploration_rate
 

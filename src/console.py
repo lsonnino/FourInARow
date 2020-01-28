@@ -89,7 +89,7 @@ class Console(object):
                     text = 'Nobody won'
                 else:
                     text = 'Winner is ' + ('BLUE' if self.winner == constants.BLUE_PIECE else 'RED') + ' !!'
-                
+
                 self.draw_text(
                     constants.PIECE_OFFSET,
                     constants.PIECE_OFFSET,
@@ -108,11 +108,16 @@ class Console(object):
 
     def request_action(self, player_id, action_space):
         if player_id == 0:
-            player_action_request = user.request_ai_action if self.is_player_1_ai else user.request_human_action
+            checker_ai = self.is_player_1_ai
+            player = constants.BLUE_PIECE
         elif player_id == 1:
-            player_action_request = user.request_ai_action if self.is_player_2_ai else user.request_human_action
+            checker_ai = self.is_player_2_ai
+            player = constants.RED_PIECE
 
-        return player_action_request(action_space)
+        if checker_ai:
+            return user.request_ai_action(action_space, self.game.map, player)
+        else:
+            return user.request_human_action(action_space)
 
     def reset(self):
         self.on = True
