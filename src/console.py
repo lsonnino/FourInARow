@@ -1,10 +1,10 @@
 import pygame
-from src import settings, constants
+from src import settings, constants, user
 from src.game import Game
 
 
 class Console(object):
-    def __init__(self, player_1_action_request, player_2_action_request):
+    def __init__(self, is_player_1_ai, is_player_2_ai):
         if settings.SHOW_GRAPHICS:
             pygame.init()
             pygame.font.init()
@@ -17,8 +17,8 @@ class Console(object):
             self.on = True
             self.pause = False
 
-            self.player_1_action_request = player_1_action_request
-            self.player_2_action_request = player_2_action_request
+            self.is_player_1_ai = is_player_1_ai
+            self.is_player_2_ai = is_player_2_ai
             self.game = Game()
             self.winner = constants.EMPTY_PIECE
             self.is_won = False
@@ -85,10 +85,15 @@ class Console(object):
             self.game.draw(self.window)
 
             if self.has_game_ended():
+                if self.winner == constants.EMPTY_PIECE:
+                    text = 'Nobody won'
+                else:
+                    text = 'Winner is ' + ('BLUE' if self.winner == constants.BLUE_PIECE else 'RED') + ' !!'
+                
                 self.draw_text(
                     constants.PIECE_OFFSET,
                     constants.PIECE_OFFSET,
-                    'Winner is ' + ('BLUE' if self.winner == constants.BLUE_PIECE else 'RED') + ' !!'
+                    text
                 )
 
             if self.pause:
@@ -102,7 +107,10 @@ class Console(object):
         self.refresh_graphics()
 
     def request_action(self, player_id, action_space):
-        player_action_request = self.player_1_action_request if player_id == 0 else self.player_2_action_request
+        if player_id == 0:
+            player_action_request = user.request_ai_action if self.is_player_1_ai else user.request_human_action
+        elif player_id == 1:
+            player_action_request = user.request_ai_action if self.is_player_2_ai else user.request_human_action
 
         return player_action_request(action_space)
 

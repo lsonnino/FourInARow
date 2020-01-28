@@ -5,12 +5,12 @@ from src.settings import SHOW_GRAPHICS
 from src.ai_settings import min_exploration_rate, max_exploration_rate
 from src import user
 
-PLAYER_1_ACTION_REQUEST = None
-PLAYER_2_ACTION_REQUEST = None
+IS_PLAYER_1_AI = False
+IS_PLAYER_2_AI = False
 
 
 def set_session():
-    global PLAYER_1_ACTION_REQUEST, PLAYER_2_ACTION_REQUEST, SHOW_GRAPHICS, min_exploration_rate, max_exploration_rate
+    global IS_PLAYER_1_AI, IS_PLAYER_2_AI, SHOW_GRAPHICS, min_exploration_rate, max_exploration_rate
 
     if EVALUATING or PLAYERS != AI_VS_AI:
         SHOW_GRAPHICS = True
@@ -18,8 +18,14 @@ def set_session():
         SHOW_GRAPHICS = False
 
     if PLAYERS == HUMAN_VS_HUMAN:
-        PLAYER_1_ACTION_REQUEST = user.request_human_action
-        PLAYER_2_ACTION_REQUEST = user.request_human_action
+        IS_PLAYER_1_AI = False
+        IS_PLAYER_2_AI = False
+    elif PLAYERS == HUMAN_VS_AI:
+        IS_PLAYER_1_AI = False
+        IS_PLAYER_2_AI = True
+    elif PLAYERS == AI_VS_AI:
+        IS_PLAYER_1_AI = True
+        IS_PLAYER_2_AI = True
     else:
         print('Unsupported players')
         exit(1)
@@ -39,7 +45,7 @@ def set_session():
 
 
 def main():
-    console = Console(PLAYER_1_ACTION_REQUEST, PLAYER_2_ACTION_REQUEST)
+    console = Console(IS_PLAYER_1_AI, IS_PLAYER_2_AI)
 
     for game_number in range(NUMBER_OF_GAMES):
         while console.on:
@@ -51,6 +57,8 @@ def main():
 
                 if not console.pause:
                     console.reset()
+
+        console.reset()
 
     console.quit()
 
