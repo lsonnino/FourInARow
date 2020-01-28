@@ -1,0 +1,212 @@
+from src.constants import *
+import numpy as np
+import pygame
+
+
+class Map(object):
+    def __init__(self):
+        self.field = np.zeros((COLUMNS, ROWS), dtype=int)
+        self.columns_height = np.zeros(COLUMNS, dtype=int)
+
+    def __check_mask(self, x, y, player, mask):
+        dx = 0
+        dy = 0
+
+        while 0 <= x + dx < COLUMNS:
+            if dx >= len(mask):
+                break
+
+            while 0 <= y + dy < ROWS:
+                if dy >= len(mask[x]):
+                    break
+
+                if mask[dx][dy] and self.field[x + dx][y + dy] != player:
+                    return False
+
+                dy += 1
+
+            dx += 1
+
+        return True
+
+    def __get_column_height(self, x):
+        if x < 0 or x >= COLUMNS:
+            return ROWS
+        else:
+            return self.columns_height[x]
+
+    def place(self, player, x):
+        if x < 0 or x >= COLUMNS or self.__get_column_height(x) >= ROWS:
+            return False
+
+        self.field[x, self.columns_height[x]] = player
+        self.columns_height[x] += 1
+
+        return True
+
+    def check_winners(self):
+        players = [RED_PIECE, BLUE_PIECE]
+
+        for x in range(COLUMNS):
+            for y in range(ROWS):
+                for player in players:
+                    for mask in WINNING_MASK:
+                        if self.__check_mask(x, y, player, mask):
+                            return player
+
+        return EMPTY_PIECE
+
+    def reset(self):
+        self.__init__()
+
+
+class Game(object):
+    def __init__(self):
+        self.map = Map()
+        self.current_player = BLUE_PIECE
+        self.current_column = int(COLUMNS / 2)
+
+    def __end_turn(self):
+        self.current_column = int(COLUMNS / 2)
+        self.current_player = RED_PIECE if self.current_player == BLUE_PIECE else BLUE_PIECE
+
+    def __right(self):
+        self.current_column += 1
+
+        if self.current_column >= COLUMNS:
+            self.current_column = COLUMNS - 1
+
+    def __left(self):
+        self.current_column -= 1
+
+        if self.current_column < 0:
+            self.current_column = 0
+
+    def __place(self):
+        return self.map.place(self.current_player, self.current_column)
+
+    def __draw_piece(self, window, x, y):
+        if self.map.field[x, y] == RED_PIECE:
+            color = RED_COLOR
+        elif self.map.field[x, y] == BLUE_PIECE:
+            color = BLUE_COLOR
+        else:
+            color = EMPTY_COLOR
+
+        absolute_x = WIN_SIZE[0] - COLUMNS * PIECE_RADIUS - (COLUMNS - 1) * PIECE_OFFSET  # Get left-right margin
+        absolute_x /= 2  # Remove right margin
+        absolute_x += x * (COLUMNS * PIECE_RADIUS + PIECE_OFFSET)  # move to the correct column
+
+        field_height = ROWS * PIECE_RADIUS - (ROWS - 1) * PIECE_OFFSET
+        absolute_y = WIN_SIZE[1] - field_height  # Get top-bottom margin
+        absolute_y /= 2  # Remove bottom margin
+        absolute_y += field_height  # move to bottom of the field
+        absolute_y -= y * (ROWS * PIECE_RADIUS + PIECE_OFFSET)  # move to the right row
+
+        pygame.draw.circle(window, color, (int(absolute_x), int(absolute_y)), PIECE_RADIUS)
+
+    def __draw_selector(self, surface):
+        """
+        Based on this tutorial:
+            https://archives.seul.org/pygame/users/Mar-2008/msg00538.html
+        """
+        x = WIN_SIZE[0] - COLUMNS * PIECE_RADIUS - (COLUMNS - 1) * PIECE_OFFSET  # Get left-right margin
+        x /= 2  # Remove right margin
+        x += self.current_column * (COLUMNS * PIECE_RADIUS + PIECE_OFFSET)  # move to the correct column
+        x -= (PIECE_OFFSET + SELECTOR_WIDTH) / 2  # move next to selected column
+
+        field_height = ROWS * PIECE_RADIUS - (ROWS - 1) * PIECE_OFFSET
+        y = WIN_SIZE[1] - field_height  # Get top-bottom margin
+        y /= 2  # Remove bottom margin
+        y += (PIECE_OFFSET + SELECTOR_RADIUS) / 2  # move on op of selected column
+
+        rect = pygame.Rect(
+            x,
+            y,
+            PIECE_RADIUS + PIECE_OFFSET - SELECTOR_WIDTH,
+            field_height + PIECE_OFFSET - SELECTOR_WIDTH
+        )
+
+        clip = surface.get_clip()
+
+        # left and right
+        surface.set_clip(clip.clip(rect.inflate(0, -SELECTOR_RADIUS * 2)))
+        pygame.draw.rect(surface, SELECTOR_COLOR, rect.inflate(1 - SELECTOR_WIDTH, 0), SELECTOR_WIDTH)
+
+        # top and bottom
+        surface.set_clip(clip.clip(rect.inflate(-SELECTOR_RADIUS * 2, 0)))
+        pygame.draw.rect(surface, SELECTOR_COLOR, rect.inflate(0, 1 - SELECTOR_WIDTH), SELECTOR_WIDTH)
+
+        # top left corner
+        surface.set_clip(clip.clip(rect.left, rect.top, SELECTOR_RADIUS, SELECTOR_RADIUS))
+        pygame.draw.ellipse(surface, SELECTOR_COLOR, pygame.Rect(rect.left, rect.top, 2 * SELECTOR_RADIUS,
+                                                                 2 * SELECTOR_RADIUS), SELECTOR_WIDTH)
+
+        # top right corner
+        surface.set_clip(clip.clip(rect.right - SELECTOR_RADIUS, rect.top, SELECTOR_RADIUS, SELECTOR_RADIUS))
+        pygame.draw.ellipse(
+            surface,
+            SELECTOR_COLOR,
+            pygame.Rect(
+                rect.right - 2 * SELECTOR_RADIUS, rect.top, 2 * SELECTOR_RADIUS, 2 * SELECTOR_RADIUS
+            ),
+            SELECTOR_WIDTH
+        )
+
+        # bottom left
+        surface.set_clip(clip.clip(rect.left, rect.bottom - SELECTOR_RADIUS, SELECTOR_RADIUS, SELECTOR_RADIUS))
+        pygame.draw.ellipse(
+            surface,
+            SELECTOR_COLOR,
+            pygame.Rect(
+                rect.left, rect.bottom - 2 * SELECTOR_RADIUS, 2 * SELECTOR_RADIUS, 2 * SELECTOR_RADIUS
+            ),
+            SELECTOR_WIDTH
+        )
+
+        # bottom right
+        surface.set_clip(clip.clip(rect.right - SELECTOR_RADIUS, rect.bottom - SELECTOR_RADIUS, SELECTOR_RADIUS,
+                                   SELECTOR_RADIUS))
+        pygame.draw.ellipse(
+            surface,
+            SELECTOR_COLOR,
+            pygame.Rect(
+                rect.right - 2 * SELECTOR_RADIUS, rect.bottom - 2 * SELECTOR_RADIUS, 2 * SELECTOR_RADIUS, 2 * SELECTOR_RADIUS
+            ),
+            SELECTOR_WIDTH
+        )
+
+        surface.set_clip(clip)
+
+    def play(self, console):
+        action = console.request_action(
+            0 if self.current_player == BLUE_PIECE else 1,
+            [LEFT, PLACE, RIGHT]
+        )
+
+        if action == LEFT:
+            self.__left()
+        elif action == RIGHT:
+            self.__right()
+        elif action == PLACE:
+            self.__place()
+
+        self.__end_turn()
+
+    def draw(self, window):
+        window.fill(BACKGROUND_COLOR)
+
+        for x in range(COLUMNS):
+            for y in range(ROWS):
+                self.__draw_piece(window, x, y)
+
+        self.__draw_selector(window)
+
+    def check_winners(self):
+        return self.map.check_winners()
+
+    def reset(self):
+        self.current_player = BLUE_PIECE
+        self.current_column = int(COLUMNS / 2)
+        self.map.reset()
+

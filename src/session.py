@@ -1,0 +1,7 @@
+from src.constants import TRAINING, EVALUATING, HUMAN_VS_HUMAN, HUMAN_VS_AI, AI_VS_AI
+from src import settings, user
+
+SESSION_TYPE = EVALUATING
+PLAYERS = HUMAN_VS_HUMAN
+
+NUMBER_OF_GAMES = 5

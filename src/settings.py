@@ -1,0 +1,3 @@
+SHOW_GRAPHICS = True
+
+FPS = 10
