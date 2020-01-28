@@ -21,6 +21,7 @@ class Console(object):
             self.player_2_action_request = player_2_action_request
             self.game = Game()
             self.winner = constants.EMPTY_PIECE
+            self.is_won = False
 
     def draw_text(self, x, y, text, color=constants.TEXT_COLOR, align_right=False):
         text_surface = self.font.render(text, True, color)
@@ -54,7 +55,7 @@ class Console(object):
             self.clock.tick(settings.FPS)
 
     def has_game_ended(self):
-        return self.winner != constants.EMPTY_PIECE
+        return self.is_won
 
     def frame(self):
         if settings.SHOW_GRAPHICS:
@@ -67,9 +68,16 @@ class Console(object):
             self.refresh_graphics()
             return
 
-        self.game.play(self)
+        if not self.game.can_play():
+            self.on = False
+            self.is_won = True
+        else:
+            self.game.play(self)
 
         self.winner = self.game.check_winners()
+        if self.winner != constants.EMPTY_PIECE:
+            self.is_won = True
+
         if self.has_game_ended():
             self.pause = True
 

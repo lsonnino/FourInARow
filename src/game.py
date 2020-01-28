@@ -39,6 +39,13 @@ class Map(object):
         else:
             return self.columns_height[x]
 
+    def can_place(self):
+        for x in range(COLUMNS):
+            if self.__get_column_height(x) != ROWS:
+                return True
+
+        return False
+
     def place(self, player, x):
         if x < 0 or x >= COLUMNS or self.__get_column_height(x) >= ROWS:
             return False
@@ -191,19 +198,26 @@ class Game(object):
 
         surface.set_clip(clip)
 
+    def can_play(self):
+        return self.map.can_place()
+
     def play(self, console):
         action = console.request_action(
             0 if self.current_player == BLUE_PIECE else 1,
             [LEFT, PLACE, RIGHT]
         )
 
+        result = False
+
         if action == LEFT:
             self.__left()
         elif action == RIGHT:
             self.__right()
         elif action == PLACE:
-            self.__place()
+            result = self.__place()
             self.__end_turn()
+
+        return result
 
     def draw(self, window):
         window.fill(BACKGROUND_COLOR)
