@@ -1,3 +1,10 @@
+# OS Specific files
+.DS_Store
+
+# IDEA
+.idea
+.idea/*
+
 # Compiled class file
 *.class
 
