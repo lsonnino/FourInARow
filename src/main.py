@@ -114,7 +114,7 @@ def main():
 
         console.reset()
 
-        print(" done")
+        print(" done\t\tend greed: " + str(round(ai.agent.epsilon * 100, 2)) + "%")
 
         if IS_AI and ai_gen > 0 and ai_gen % SAVE_EVERY == 0:
             save_ai_num(ai_gen)
