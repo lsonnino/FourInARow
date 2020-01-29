@@ -92,19 +92,20 @@ def main():
                     terminal=console.is_won
                 )
 
-                old_state, reward, action, next_state = console.change_perspective(
-                    old_state=old_state,
-                    reward=reward,
-                    action=action,
-                    next_state=next_state
-                )
-                ai.agent.store_transition(
-                    state=old_state,
-                    chosen_action=user.encode_action(action),
-                    reward=reward,
-                    new_state=next_state,
-                    terminal=console.is_won
-                )
+                if console.is_won:
+                    old_state, reward, action, next_state = console.change_perspective(
+                        old_state=old_state,
+                        reward=reward,
+                        action=action,
+                        next_state=next_state
+                    )
+                    ai.agent.store_transition(
+                        state=old_state,
+                        chosen_action=user.encode_action(action),
+                        reward=reward,
+                        new_state=next_state,
+                        terminal=console.is_won
+                    )
 
                 ai.agent.learn()
 
