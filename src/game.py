@@ -207,6 +207,25 @@ class Game(object):
 
         surface.set_clip(clip)
 
+    def get_state(self):
+        state = np.zeros(ROWS * COLUMNS + COLUMNS)
+
+        for x in range(COLUMNS):
+            for y in range(ROWS):
+                state[x * ROWS + y] = self.current_player * self.map.field[x, y]
+
+            if self.current_column == x:
+                state[ROWS * COLUMNS] = 1.0
+
+        return state
+
+    def change_perspective(self, state):
+        for x in range(COLUMNS):
+            for y in range(ROWS):
+                state[x * ROWS + y] = -state[x * ROWS + y]
+
+        return state
+
     def can_play(self):
         return self.map.can_place()
 
@@ -217,14 +236,17 @@ class Game(object):
 
         if action == LEFT:
             result = self.__left()
+            next_state = self.get_state()
         elif action == RIGHT:
             result = self.__right()
+            next_state = self.get_state()
         elif action == PLACE:
             result = self.__place()
+            next_state = self.get_state()
             if result:
                 self.__end_turn()
 
-        return result, action
+        return result, action, next_state
 
     def draw(self, window):
         window.fill(BACKGROUND_COLOR)

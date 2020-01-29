@@ -15,27 +15,26 @@ class Console(object):
             self.clock = pygame.time.Clock()
             self.font = pygame.font.SysFont(constants.FONT, constants.FONT_SIZE)
 
-            self.on = True
-            self.pause = False
-            self.pressed = False
+        self.on = True
+        self.pause = False
+        self.pressed = False
 
-            self.is_player_1_ai = is_player_1_ai
-            self.is_player_2_ai = is_player_2_ai
-            self.game = Game()
-            self.winner = constants.EMPTY_PIECE
-            self.is_won = False
+        self.is_player_1_ai = is_player_1_ai
+        self.is_player_2_ai = is_player_2_ai
+        self.game = Game()
+        self.winner = constants.EMPTY_PIECE
+        self.is_won = False
 
-    def get_state(self):
-        state = np.zeros(constants.ROWS * constants.COLUMNS + constants.COLUMNS)
+    def __get_state(self):
+        return self.game.get_state()
 
-        for x in range(constants.COLUMNS):
-            for y in range(constants.ROWS):
-                state[x * constants.ROWS + y] = self.game.current_player * self.game.map.field[x, y]
+    def change_perspective(self, old_state, action, reward, next_state):
+        reward = -reward
 
-            if self.game.current_column == x:
-                state[constants.ROWS * constants.COLUMNS] = 1.0
+        old_state = self.game.change_perspective(old_state)
+        next_state = self.game.change_perspective(next_state)
 
-        return state
+        return old_state, action, reward, next_state
 
     def draw_text(self, x, y, text, color=constants.TEXT_COLOR, align_right=False):
         text_surface = self.font.render(text, True, color)
@@ -76,27 +75,28 @@ class Console(object):
 
     def frame(self):
         reward = 0
-        result = False
+        old_state = self.__get_state()
+        next_state = old_state
         action = constants.NONE
 
         if settings.SHOW_GRAPHICS:
             self.key_binding()
 
         if not self.on:
-            return result, reward, action
+            return old_state, reward, action, next_state
 
         if self.pause or self.has_game_ended():
             self.refresh_graphics()
-            return result, reward, action
+            return old_state, reward, action, next_state
 
         if not self.game.can_play():
             self.on = False
             self.is_won = True
         else:
-            result, action = self.game.play(self)
-            
+            result, action, next_state = self.game.play(self)
+
             if not result:
-                reward -= 1
+                reward -= 5
 
         self.winner = self.game.check_winners()
         if self.winner != constants.EMPTY_PIECE:
@@ -133,7 +133,7 @@ class Console(object):
 
         self.refresh_graphics()
 
-        return result, reward, action
+        return old_state, reward, action, next_state
 
     def request_action(self, player_id):
         if player_id == 0:
@@ -142,7 +142,7 @@ class Console(object):
             checker_ai = self.is_player_2_ai
 
         if checker_ai:
-            return user.request_ai_action(self.get_state())
+            return user.request_ai_action(self.__get_state())
         else:
             return user.request_human_action()
 

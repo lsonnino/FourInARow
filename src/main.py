@@ -1,24 +1,21 @@
 from src.console import Console
 from src.session import *
-from src.constants import AI_VS_AI
-from src import settings, ai_settings, ai
+from src.constants import AI_VS_AI, NONE
+from src import settings, ai_settings, ai, user
+import os
 
 IS_PLAYER_1_AI = False
 IS_PLAYER_2_AI = False
-
-
-# todo list
-#   - use state in user.request_ai_action
-#   - reward system (even for the looser !!)
+IS_AI = False
 
 
 def set_session():
-    global IS_PLAYER_1_AI, IS_PLAYER_2_AI
+    global IS_PLAYER_1_AI, IS_PLAYER_2_AI, IS_AI
 
-    if EVALUATING or PLAYERS != AI_VS_AI:
-        settings.SHOW_GRAPHICS = True
+    if SESSION_TYPE == EVALUATING or PLAYERS != AI_VS_AI:
+        settings.set_graphics(True)
     else:
-        settings.SHOW_GRAPHICS = False
+        settings.set_graphics(False)
 
     if PLAYERS == HUMAN_VS_HUMAN:
         IS_PLAYER_1_AI = False
@@ -34,28 +31,83 @@ def set_session():
         exit(1)
 
     if IS_PLAYER_1_AI or IS_PLAYER_2_AI:
+        IS_AI = True
         ai.set_agent(ai.Agent(name=ai_settings.AI_NAME))
 
     if EXPLORATION_RATE_MODEL == FULL_EXPLORATION_RATE_MODEL:
-        ai_settings.max_exploration_rate = 1
-        ai_settings.min_exploration_rate = 0.01
+        ai_settings.set_exploration(min_exp=0.01, max_exp=1)
     elif EXPLORATION_RATE_MODEL == SMALL_EXPLORATION_RATE_MODEL:
-        ai_settings.max_exploration_rate = 0.5
-        ai_settings.min_exploration_rate = 0.005
+        ai_settings.set_exploration(min_exp=0.005, max_exp=0.5)
     elif EXPLORATION_RATE_MODEL == CONSTANT_EXPLORATION_RATE_MODEL:
-        ai_settings.max_exploration_rate = 0.001
-        ai_settings.min_exploration_rate = 0.001
+        ai_settings.set_exploration(min_exp=0.001, max_exp=0.001)
     elif EXPLORATION_RATE_MODEL == NO_EXPLORATION_RATE_MODEL:
-        ai_settings.max_exploration_rate = 0
-        ai_settings.min_exploration_rate = 0
+        ai_settings.set_exploration(min_exp=0, max_exp=0)
+
+
+def get_path(num):
+    return DATA_DIR + '/' + AI_DIR + '/' + str(num)
+
+
+def read_ai_num(num):
+    path = get_path(num)
+    try:
+        ai.agent.load_models(path)
+        return True
+    except Exception:
+        return False
+
+
+def save_ai_num(num):
+    path = get_path(num)
+
+    if not os.path.exists(DATA_DIR):
+        os.mkdir(DATA_DIR)
+    elif os.path.exists(path):
+        os.remove(path)
+
+    ai.agent.save_models(path)
 
 
 def main():
     console = Console(IS_PLAYER_1_AI, IS_PLAYER_2_AI)
 
-    for game_number in range(NUMBER_OF_GAMES):
+    game_number = 1
+    ai_gen = 1
+
+    if read_ai_num(LOAD_AI):
+        ai_gen = LOAD_AI + 1
+
+    while game_number <= NUMBER_OF_GAMES:
+        print("Playing game number " + str(game_number) + " ...", end='')
+
         while console.on:
-            could_play, reward, action = console.frame()
+            old_state, reward, action, next_state = console.frame()
+
+            if IS_AI:
+                if action != NONE:  # If action is NONE, the AI did not play (console off, ...)
+                    ai.agent.store_transition(
+                        state=old_state,
+                        chosen_action=user.encode_action(action),
+                        reward=reward,
+                        new_state=next_state,
+                        terminal=console.is_won
+                    )
+
+                    old_state, reward, action, next_state = console.change_perspective(
+                        old_state=old_state,
+                        reward=reward,
+                        action=action,
+                        next_state=next_state
+                    )
+                    ai.agent.store_transition(
+                        state=old_state,
+                        chosen_action=user.encode_action(action),
+                        reward=reward,
+                        new_state=next_state,
+                        terminal=console.is_won
+                    )
+
+                    ai.agent.learn()
 
             if console.has_game_ended():
                 if PLAYERS != AI_VS_AI and not console.pause:  # Request human to press 'p' to continue
@@ -64,6 +116,14 @@ def main():
                     break
 
         console.reset()
+
+        print(" done")
+
+        if ai_gen > 0 and ai_gen % SAVE_EVERY == 0:
+            save_ai_num(ai_gen)
+
+        game_number += 1
+        ai_gen += 1
 
     console.quit()
 
