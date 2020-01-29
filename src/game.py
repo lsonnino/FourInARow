@@ -245,6 +245,9 @@ class Game(object):
             next_state = self.get_state()
             if result:
                 self.__end_turn()
+        else:
+            result = False
+            next_state = self.get_state()
 
         return result, action, next_state
 

@@ -74,7 +74,7 @@ def main():
     game_number = 1
     ai_gen = 1
 
-    if read_ai_num(LOAD_AI):
+    if IS_AI and read_ai_num(LOAD_AI):
         ai_gen = LOAD_AI + 1
 
     while game_number <= NUMBER_OF_GAMES:
@@ -83,52 +83,40 @@ def main():
         while console.on:
             old_state, reward, action, next_state = console.frame()
 
-            if settings.SHOW_GRAPHICS:
-                console.draw_text(
-                    WIN_SIZE[0] - PIECE_OFFSET,
-                    WIN_SIZE[1] - PIECE_OFFSET,
-                    "Game number : " + str(game_number),
-                    align_right=True,
-                    align_bottom=True
+            if IS_AI and action != NONE:  # If action is NONE, the AI did not play (console off, ...)
+                ai.agent.store_transition(
+                    state=old_state,
+                    chosen_action=user.encode_action(action),
+                    reward=reward,
+                    new_state=next_state,
+                    terminal=console.is_won
                 )
 
-            if IS_AI:
-                if action != NONE:  # If action is NONE, the AI did not play (console off, ...)
-                    ai.agent.store_transition(
-                        state=old_state,
-                        chosen_action=user.encode_action(action),
-                        reward=reward,
-                        new_state=next_state,
-                        terminal=console.is_won
-                    )
+                old_state, reward, action, next_state = console.change_perspective(
+                    old_state=old_state,
+                    reward=reward,
+                    action=action,
+                    next_state=next_state
+                )
+                ai.agent.store_transition(
+                    state=old_state,
+                    chosen_action=user.encode_action(action),
+                    reward=reward,
+                    new_state=next_state,
+                    terminal=console.is_won
+                )
 
-                    old_state, reward, action, next_state = console.change_perspective(
-                        old_state=old_state,
-                        reward=reward,
-                        action=action,
-                        next_state=next_state
-                    )
-                    ai.agent.store_transition(
-                        state=old_state,
-                        chosen_action=user.encode_action(action),
-                        reward=reward,
-                        new_state=next_state,
-                        terminal=console.is_won
-                    )
-
-                    ai.agent.learn()
+                ai.agent.learn()
 
             if console.has_game_ended():
-                if PLAYERS != AI_VS_AI and not console.pause:  # Request human to press 'p' to continue
-                    console.pause = True
-                elif PLAYERS == AI_VS_AI or not console.pause:
+                if PLAYERS == AI_VS_AI:
                     break
 
         console.reset()
 
         print(" done")
 
-        if ai_gen > 0 and ai_gen % SAVE_EVERY == 0:
+        if IS_AI and ai_gen > 0 and ai_gen % SAVE_EVERY == 0:
             save_ai_num(ai_gen)
 
         game_number += 1
