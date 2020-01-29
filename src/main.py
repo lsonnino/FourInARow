@@ -1,6 +1,6 @@
 from src.console import Console
 from src.session import *
-from src.constants import AI_VS_AI, NONE
+from src.constants import AI_VS_AI, NONE, WIN_SIZE, PIECE_OFFSET
 from src import settings, ai_settings, ai, user
 import os
 
@@ -82,6 +82,15 @@ def main():
 
         while console.on:
             old_state, reward, action, next_state = console.frame()
+
+            if settings.SHOW_GRAPHICS:
+                console.draw_text(
+                    WIN_SIZE[0] - PIECE_OFFSET,
+                    WIN_SIZE[1] - PIECE_OFFSET,
+                    "Game number : " + str(game_number),
+                    align_right=True,
+                    align_bottom=True
+                )
 
             if IS_AI:
                 if action != NONE:  # If action is NONE, the AI did not play (console off, ...)
