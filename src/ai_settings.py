@@ -1,4 +1,4 @@
-AI_NAME = 'Four IA Row'
+AI_NAME = 'Shikamaru'
 
 discount_rate = 0.5  # must be between 0 and 1
 learning_rate = 0.0001  # must be between 0 and 1

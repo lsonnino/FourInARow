@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-from src import constants
+from src import constants, ai
 
 
 def request_human_action():
@@ -16,11 +16,12 @@ def request_human_action():
         return constants.NONE
 
 
-def request_ai_action(map, player):
-    state = np.zeros(constants.ROWS * constants.COLUMNS)
+def request_ai_action(state):
+    action = ai.agent.choose_action(state)
 
-    for x in range(constants.COLUMNS):
-        for y in range(constants.ROWS):
-            state[x * constants.ROWS + y] = player * map.field[x, y]
-
-    return np.random.choice([constants.LEFT, constants.RIGHT, constants.PLACE], 1)[0]
+    if action == 0:
+        return constants.LEFT
+    elif action == 1:
+        return constants.RIGHT
+    else:
+        return constants.PLACE

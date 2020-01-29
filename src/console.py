@@ -94,6 +94,9 @@ class Console(object):
             self.is_won = True
         else:
             result, action = self.game.play(self)
+            
+            if not result:
+                reward -= 1
 
         self.winner = self.game.check_winners()
         if self.winner != constants.EMPTY_PIECE:
@@ -135,13 +138,11 @@ class Console(object):
     def request_action(self, player_id):
         if player_id == 0:
             checker_ai = self.is_player_1_ai
-            player = constants.BLUE_PIECE
         elif player_id == 1:
             checker_ai = self.is_player_2_ai
-            player = constants.RED_PIECE
 
         if checker_ai:
-            return user.request_ai_action(self.game.map, player)
+            return user.request_ai_action(self.get_state())
         else:
             return user.request_human_action()
 

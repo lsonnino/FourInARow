@@ -17,12 +17,21 @@ import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 
 
+agent = None
+
+
+def set_agent(model):
+    global agent
+
+    agent = model
+
+
 class Network(object):
     def __init__(self, learning_rate, name):
         self.learning_rate = learning_rate
         self.n_actions = 3
         self.name = name
-        self.input_dims = ROWS * COLUMNS + COLUMNS
+        self.input_dims = [ROWS * COLUMNS + COLUMNS]
 
         self.session = tf.Session()
         self.build_network()
@@ -31,11 +40,11 @@ class Network(object):
 
     def build_network(self):
         with tf.variable_scope(self.name):
-            self.input = tf.placeholder(tf.float32, shape=[None, *(self.input_dims)], name='inputs')
+            self.input = tf.placeholder(tf.float32, shape=[None, *self.input_dims], name='inputs')
             self.actions = tf.placeholder(tf.float32, shape=[None, self.n_actions], name='actions_taken')
             self.q_target = tf.placeholder(tf.float32, shape=[None, self.n_actions], name='q_values')
 
-            flat = tf.layers.flatten(input)
+            flat = tf.layers.flatten(self.input)
             dense1 = tf.layers.dense(flat, units=32, activation=tf.nn.relu)
             dense2 = tf.layers.dense(dense1, units=16, activation=tf.nn.relu)
             self.Q_values = tf.layers.dense(dense2, units=3)
