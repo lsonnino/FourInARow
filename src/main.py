@@ -10,7 +10,6 @@ IS_PLAYER_2_AI = False
 
 
 # todo list
-#   - bug when detecting diagonal
 #   - use state in user.request_ai_action
 #   - reward system (even for the looser !!)
 

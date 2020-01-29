@@ -8,6 +8,7 @@
 ################################################################
 
 from src.ai_settings import *
+from src.constants import ROWS, COLUMNS
 
 import numpy as np
 import tensorflow.compat.v1 as tf
@@ -17,20 +18,27 @@ tf.disable_v2_behavior()
 
 
 class Network(object):
-    def __init__(self, learning_rate, n_actions, name, input_dims, network_builder):
+    def __init__(self, learning_rate, name):
         self.learning_rate = learning_rate
-        self.n_actions = n_actions
+        self.n_actions = 3
         self.name = name
-        self.input_dims = input_dims
+        self.input_dims = ROWS * COLUMNS + COLUMNS
 
         self.session = tf.Session()
-        self.build_network(network_builder)
+        self.build_network()
         self.session.run(tf.global_variables_initializer())
         self.saver = tf.train.Saver()
 
-    def build_network(self, network_builder):
+    def build_network(self):
         with tf.variable_scope(self.name):
-            self.input, self.actions, self.q_target, self.Q_values = network_builder()
+            self.input = tf.placeholder(tf.float32, shape=[None, *(self.input_dims)], name='inputs')
+            self.actions = tf.placeholder(tf.float32, shape=[None, self.n_actions], name='actions_taken')
+            self.q_target = tf.placeholder(tf.float32, shape=[None, self.n_actions], name='q_values')
+
+            flat = tf.layers.flatten(input)
+            dense1 = tf.layers.dense(flat, units=32, activation=tf.nn.relu)
+            dense2 = tf.layers.dense(dense1, units=16, activation=tf.nn.relu)
+            self.Q_values = tf.layers.dense(dense2, units=3)
 
             self.loss = tf.reduce_mean(tf.square(self.Q_values - self.q_target))
             self.train_op = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
@@ -46,12 +54,12 @@ class Network(object):
 
 
 class Agent(object):
-    def __init__(self, n_actions, input_dims, name, network_builder):
-        self.n_actions = n_actions
+    def __init__(self, name):
+        self.q_eval = Network(learning_rate=learning_rate, name=name)
+
+        self.n_actions = self.q_eval.n_actions
         self.action_space = [i for i in range(self.n_actions)]
 
-        self.q_eval = Network(learning_rate=learning_rate, n_actions=n_actions, name=name, input_dims=input_dims,
-                              network_builder=network_builder)
         self.batch_size = batch_size
 
         self.gamma = discount_rate
@@ -59,6 +67,7 @@ class Agent(object):
         self.epsilon_dec = exploration_decay_rate
         self.epsilon_end = min_exploration_rate
 
+        input_dims = self.q_eval.input_dims
         self.memory_size = replay_memory_capacity
         self.state_memory = np.zeros( (self.memory_size, *input_dims) )
         self.new_state_memory = np.zeros( (self.memory_size, *input_dims) )
