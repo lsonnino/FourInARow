@@ -78,7 +78,7 @@ def main():
         ai_gen = LOAD_AI + 1
 
     while game_number <= NUMBER_OF_GAMES:
-        print("Playing game number " + str(game_number) + " ...", end='')
+        print("Playing with gen " + str(ai_gen) + " ...", end='')
 
         while console.on:
             old_state, reward, action, next_state = console.frame()
@@ -116,7 +116,7 @@ def main():
 
         print(" done \t\t end greed: " + str(round(ai.agent.epsilon * 100, 2)) + "%")
 
-        if IS_AI and ai_gen > 0 and ai_gen % SAVE_EVERY == 0:
+        if IS_AI and ai_gen > 0 and SAVE_EVERY > 0 and ai_gen % SAVE_EVERY == 0:
             save_ai_num(ai_gen)
 
         game_number += 1
