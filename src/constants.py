@@ -63,7 +63,7 @@ NONE = -2
 # Window
 # ----------------------------
 
-WIN_SIZE = (1280, 720)
+WIN_SIZE = (900, 720)
 
 PIECE_DIAMETER = 60
 PIECE_OFFSET = 15

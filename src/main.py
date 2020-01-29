@@ -109,7 +109,7 @@ def main():
                 ai.agent.learn()
 
             if console.has_game_ended():
-                if PLAYERS == AI_VS_AI:
+                if PLAYERS == AI_VS_AI or not console.pause:
                     break
 
         console.reset()
