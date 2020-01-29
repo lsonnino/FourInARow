@@ -54,7 +54,10 @@ def main():
 
     for game_number in range(NUMBER_OF_GAMES):
         while console.on:
-            console.frame()
+            result, reward, action = console.frame()
+            print('Result: ' + str(result))
+            print('Reward: ' + str(reward))
+            print('Action: ' + str(action))
 
             if console.has_game_ended():
                 if PLAYERS != AI_VS_AI and not console.pause:  # Request human to press 'p' to continue

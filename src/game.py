@@ -88,12 +88,17 @@ class Game(object):
 
         if self.current_column >= COLUMNS:
             self.current_column = COLUMNS - 1
+            return False
+        else:
+            return True
 
     def __left(self):
         self.current_column -= 1
 
         if self.current_column < 0:
             self.current_column = 0
+            return False
+        return True
 
     def __place(self):
         return self.map.place(self.current_player, self.current_column)
@@ -207,23 +212,19 @@ class Game(object):
 
     def play(self, console):
         action = console.request_action(
-            0 if self.current_player == BLUE_PIECE else 1,
-            [LEFT, PLACE, RIGHT]
+            0 if self.current_player == BLUE_PIECE else 1
         )
 
-        result = False
-
         if action == LEFT:
-            self.__left()
+            result = self.__left()
         elif action == RIGHT:
-            self.__right()
+            result = self.__right()
         elif action == PLACE:
             result = self.__place()
+            if result:
+                self.__end_turn()
 
-        if result:
-            self.__end_turn()
-
-        return result
+        return result, action
 
     def draw(self, window):
         window.fill(BACKGROUND_COLOR)

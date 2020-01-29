@@ -1,4 +1,5 @@
 import pygame
+import numpy as np
 from src import settings, constants, user
 from src.game import Game
 
@@ -23,6 +24,18 @@ class Console(object):
             self.game = Game()
             self.winner = constants.EMPTY_PIECE
             self.is_won = False
+
+    def get_state(self):
+        state = np.zeros(constants.ROWS * constants.COLUMNS + constants.COLUMNS)
+
+        for x in range(constants.COLUMNS):
+            for y in range(constants.ROWS):
+                state[x * constants.ROWS + y] = self.game.current_player * self.game.map.field[x, y]
+
+            if self.game.current_column == x:
+                state[constants.ROWS * constants.COLUMNS] = 1.0
+
+        return state
 
     def draw_text(self, x, y, text, color=constants.TEXT_COLOR, align_right=False):
         text_surface = self.font.render(text, True, color)
@@ -62,25 +75,32 @@ class Console(object):
         return self.is_won
 
     def frame(self):
+        reward = 0
+        result = False
+        action = constants.NONE
+
         if settings.SHOW_GRAPHICS:
             self.key_binding()
 
         if not self.on:
-            return
+            return result, reward, action
 
         if self.pause or self.has_game_ended():
             self.refresh_graphics()
-            return
+            return result, reward, action
 
         if not self.game.can_play():
             self.on = False
             self.is_won = True
         else:
-            self.game.play(self)
+            result, action = self.game.play(self)
 
         self.winner = self.game.check_winners()
         if self.winner != constants.EMPTY_PIECE:
             self.is_won = True
+
+            if result:
+                reward += 100  # player has won
 
         if self.has_game_ended():
             self.pause = True
@@ -110,7 +130,9 @@ class Console(object):
 
         self.refresh_graphics()
 
-    def request_action(self, player_id, action_space):
+        return result, reward, action
+
+    def request_action(self, player_id):
         if player_id == 0:
             checker_ai = self.is_player_1_ai
             player = constants.BLUE_PIECE
@@ -119,9 +141,9 @@ class Console(object):
             player = constants.RED_PIECE
 
         if checker_ai:
-            return user.request_ai_action(action_space, self.game.map, player)
+            return user.request_ai_action(self.game.map, player)
         else:
-            return user.request_human_action(action_space)
+            return user.request_human_action()
 
     def reset(self):
         self.on = True

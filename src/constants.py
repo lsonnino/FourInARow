@@ -57,6 +57,7 @@ BLUE_PIECE = 1
 LEFT = -1
 PLACE = 0
 RIGHT = 1
+NONE = -2
 
 # ----------------------------
 # Window
