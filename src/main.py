@@ -17,6 +17,15 @@ def set_session():
     else:
         settings.set_graphics(False)
 
+    if EXPLORATION_RATE_MODEL == FULL_EXPLORATION_RATE_MODEL:
+        ai_settings.set_exploration(min_exp=0.01, max_exp=1)
+    elif EXPLORATION_RATE_MODEL == SMALL_EXPLORATION_RATE_MODEL:
+        ai_settings.set_exploration(min_exp=0.005, max_exp=0.5)
+    elif EXPLORATION_RATE_MODEL == CONSTANT_EXPLORATION_RATE_MODEL:
+        ai_settings.set_exploration(min_exp=0.001, max_exp=0.001)
+    elif EXPLORATION_RATE_MODEL == NO_EXPLORATION_RATE_MODEL:
+        ai_settings.set_exploration(min_exp=0, max_exp=0)
+
     if PLAYERS == HUMAN_VS_HUMAN:
         IS_PLAYER_1_AI = False
         IS_PLAYER_2_AI = False
@@ -33,15 +42,6 @@ def set_session():
     if IS_PLAYER_1_AI or IS_PLAYER_2_AI:
         IS_AI = True
         ai.set_agent(ai.Agent(name=ai_settings.AI_NAME))
-
-    if EXPLORATION_RATE_MODEL == FULL_EXPLORATION_RATE_MODEL:
-        ai_settings.set_exploration(min_exp=0.01, max_exp=1)
-    elif EXPLORATION_RATE_MODEL == SMALL_EXPLORATION_RATE_MODEL:
-        ai_settings.set_exploration(min_exp=0.005, max_exp=0.5)
-    elif EXPLORATION_RATE_MODEL == CONSTANT_EXPLORATION_RATE_MODEL:
-        ai_settings.set_exploration(min_exp=0.001, max_exp=0.001)
-    elif EXPLORATION_RATE_MODEL == NO_EXPLORATION_RATE_MODEL:
-        ai_settings.set_exploration(min_exp=0, max_exp=0)
 
 
 def get_path(num):

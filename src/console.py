@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-from src import settings, constants, user
+from src import settings, constants, user, ai
 from src.game import Game
 
 
@@ -138,6 +138,15 @@ class Console(object):
                 "Reward: " + str(reward),
                 align_bottom=True
             )
+
+            if ai.agent is not None:
+                self.draw_text(
+                    constants.WIN_SIZE[0] - constants.PIECE_OFFSET,
+                    constants.WIN_SIZE[1] - constants.PIECE_OFFSET,
+                    "Epsilon: " + str(round(ai.agent.epsilon * 100, 2)) + "%",
+                    align_bottom=True,
+                    align_right=True
+                )
 
             if self.has_game_ended():
                 if self.winner == constants.EMPTY_PIECE:

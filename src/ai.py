@@ -7,7 +7,7 @@
 #
 ################################################################
 
-from src.ai_settings import *
+from src import ai_settings
 from src.constants import ROWS, COLUMNS
 
 import numpy as np
@@ -64,20 +64,20 @@ class Network(object):
 
 class Agent(object):
     def __init__(self, name):
-        self.q_eval = Network(learning_rate=learning_rate, name=name)
+        self.q_eval = Network(learning_rate=ai_settings.learning_rate, name=name)
 
         self.n_actions = self.q_eval.n_actions
         self.action_space = [i for i in range(self.n_actions)]
 
-        self.batch_size = batch_size
+        self.batch_size = ai_settings.batch_size
 
-        self.gamma = discount_rate
-        self.epsilon = max_exploration_rate
-        self.epsilon_dec = exploration_decay_rate
-        self.epsilon_end = min_exploration_rate
+        self.gamma = ai_settings.discount_rate
+        self.epsilon = ai_settings.max_exploration_rate
+        self.epsilon_dec = ai_settings.exploration_decay_rate
+        self.epsilon_end = ai_settings.min_exploration_rate
 
         input_dims = self.q_eval.input_dims
-        self.memory_size = replay_memory_capacity
+        self.memory_size = ai_settings.replay_memory_capacity
         self.state_memory = np.zeros( (self.memory_size, *input_dims) )
         self.new_state_memory = np.zeros( (self.memory_size, *input_dims) )
         self.action_memory = np.zeros( (self.memory_size, self.n_actions), dtype=np.int8 )

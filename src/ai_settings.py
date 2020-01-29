@@ -1,9 +1,9 @@
 AI_NAME = 'Shikamaru'
 
-discount_rate = 0.5  # must be between 0 and 1
-learning_rate = 0.0001  # must be between 0 and 1
+discount_rate = 0.6  # must be between 0 and 1
+learning_rate = 0.0005  # must be between 0 and 1
 
-batch_size = 128
+batch_size = 256
 replay_memory_capacity = 65536
 
 FULL_EXPLORATION_RATE_MODEL = 0
