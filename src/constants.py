@@ -50,6 +50,9 @@ WINNING_MASK = [
     ]
 ]
 
+# must respect:
+#   red piece = - blue piece
+#   empty piece = 0
 EMPTY_PIECE = 0
 RED_PIECE = -1
 BLUE_PIECE = 1
