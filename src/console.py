@@ -36,14 +36,20 @@ class Console(object):
 
         return old_state, action, reward, next_state
 
-    def draw_text(self, x, y, text, color=constants.TEXT_COLOR, align_right=False):
+    def draw_text(self, x, y, text, color=constants.TEXT_COLOR, align_right=False, align_bottom=False):
         text_surface = self.font.render(text, True, color)
         text_rect = text_surface.get_rect()
+
         if align_right:
             text_rect.right = x
         else:
             text_rect.left = x
-        text_rect.top = y
+
+        if align_bottom:
+            text_rect.bottom = y
+        else:
+            text_rect.top = y
+
         # Merge the texts with the window
         self.window.blit(text_surface, text_rect)
 
@@ -110,6 +116,28 @@ class Console(object):
 
         if settings.SHOW_GRAPHICS:
             self.game.draw(self.window)
+
+            action_str = "None"
+            if action == constants.LEFT:
+                action_str = "Left"
+            elif action == constants.RIGHT:
+                action_str = "Right"
+            elif action == constants.PLACE:
+                action_str = "Place"
+
+            self.draw_text(
+                constants.PIECE_OFFSET,
+                constants.WIN_SIZE[1] - constants.PIECE_OFFSET,
+                "Action: " + action_str,
+                align_bottom=True
+            )
+
+            self.draw_text(
+                constants.PIECE_OFFSET,
+                constants.WIN_SIZE[1] - 2 * constants.PIECE_OFFSET,
+                "Reward: " + str(reward),
+                align_bottom=True
+            )
 
             if self.has_game_ended():
                 if self.winner == constants.EMPTY_PIECE:
