@@ -60,9 +60,8 @@ def main():
             if console.has_game_ended():
                 if PLAYERS != AI_VS_AI and not console.pause:  # Request human to press 'p' to continue
                     console.pause = True
-
-                if not console.pause:
-                    console.reset()
+                elif PLAYERS == AI_VS_AI or not console.pause:
+                    break
 
         console.reset()
 

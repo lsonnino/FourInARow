@@ -10,7 +10,6 @@ class Map(object):
 
     def __check_mask(self, x, y, player, mask):
         dx = 0
-        dy = 0
 
         count = 0
 
@@ -18,7 +17,10 @@ class Map(object):
             if dx >= len(mask):
                 break
 
+            dy = 0
+
             while 0 <= y + dy < ROWS:
+
                 if dy >= len(mask[dx]):
                     break
 

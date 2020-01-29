@@ -127,6 +127,7 @@ class Console(object):
         self.on = True
         self.pause = False
         self.winner = constants.EMPTY_PIECE
+        self.is_won = False
         self.game.reset()
 
     def quit(self):
