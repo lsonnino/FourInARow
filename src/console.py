@@ -16,6 +16,7 @@ class Console(object):
 
             self.on = True
             self.pause = False
+            self.pressed = False
 
             self.is_player_1_ai = is_player_1_ai
             self.is_player_2_ai = is_player_2_ai
@@ -46,8 +47,11 @@ class Console(object):
 
         if keys[pygame.K_ESCAPE]:  # Quit
             self.on = False
-        elif keys[pygame.K_p]:  # Pause/resume the game
+        elif keys[pygame.K_p] and not self.pressed:  # Pause/resume the game
             self.pause = not self.pause
+            self.pressed = True
+        elif not keys[pygame.K_p] and self.pressed:
+            self.pressed = False
 
     def refresh_graphics(self):
         if settings.SHOW_GRAPHICS:
@@ -64,7 +68,7 @@ class Console(object):
         if not self.on:
             return
 
-        if self.pause:
+        if self.pause or self.has_game_ended():
             self.refresh_graphics()
             return
 

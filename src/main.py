@@ -15,7 +15,6 @@ IS_PLAYER_2_AI = False
 #   - reward system (even for the looser !!)
 
 
-
 def set_session():
     global IS_PLAYER_1_AI, IS_PLAYER_2_AI, SHOW_GRAPHICS, min_exploration_rate, max_exploration_rate
 

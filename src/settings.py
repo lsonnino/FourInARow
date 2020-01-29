@@ -1,3 +1,3 @@
 SHOW_GRAPHICS = True
 
-FPS = 10
+FPS = 20

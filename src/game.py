@@ -47,7 +47,7 @@ class Map(object):
         return False
 
     def place(self, player, x):
-        if x < 0 or x >= COLUMNS or self.__get_column_height(x) >= ROWS:
+        if self.__get_column_height(x) >= ROWS:
             return False
 
         self.field[x, self.columns_height[x]] = player
@@ -129,6 +129,8 @@ class Game(object):
         Based on this tutorial:
             https://archives.seul.org/pygame/users/Mar-2008/msg00538.html
         """
+        selector_color = RED_COLOR if self.current_player == RED_PIECE else BLUE_COLOR
+
         x = WIN_SIZE[0] - COLUMNS * PIECE_DIAMETER - (COLUMNS - 1) * PIECE_OFFSET  # Get left-right margin
         x = x / 2  # Remove right margin
         x += self.current_column * (PIECE_DIAMETER + PIECE_OFFSET)  # move to the correct column
@@ -151,22 +153,22 @@ class Game(object):
 
         # left and right
         surface.set_clip(clip.clip(rect.inflate(0, -SELECTOR_RADIUS * 2)))
-        pygame.draw.rect(surface, SELECTOR_COLOR, rect.inflate(1 - SELECTOR_WIDTH, 0), SELECTOR_WIDTH)
+        pygame.draw.rect(surface, selector_color, rect.inflate(1 - SELECTOR_WIDTH, 0), SELECTOR_WIDTH)
 
         # top and bottom
         surface.set_clip(clip.clip(rect.inflate(-SELECTOR_RADIUS * 2, 0)))
-        pygame.draw.rect(surface, SELECTOR_COLOR, rect.inflate(0, 1 - SELECTOR_WIDTH), SELECTOR_WIDTH)
+        pygame.draw.rect(surface, selector_color, rect.inflate(0, 1 - SELECTOR_WIDTH), SELECTOR_WIDTH)
 
         # top left corner
         surface.set_clip(clip.clip(rect.left, rect.top, SELECTOR_RADIUS, SELECTOR_RADIUS))
-        pygame.draw.ellipse(surface, SELECTOR_COLOR, pygame.Rect(rect.left, rect.top, 2 * SELECTOR_RADIUS,
+        pygame.draw.ellipse(surface, selector_color, pygame.Rect(rect.left, rect.top, 2 * SELECTOR_RADIUS,
                                                                  2 * SELECTOR_RADIUS), SELECTOR_WIDTH)
 
         # top right corner
         surface.set_clip(clip.clip(rect.right - SELECTOR_RADIUS, rect.top, SELECTOR_RADIUS, SELECTOR_RADIUS))
         pygame.draw.ellipse(
             surface,
-            SELECTOR_COLOR,
+            selector_color,
             pygame.Rect(
                 rect.right - 2 * SELECTOR_RADIUS, rect.top, 2 * SELECTOR_RADIUS, 2 * SELECTOR_RADIUS
             ),
@@ -177,7 +179,7 @@ class Game(object):
         surface.set_clip(clip.clip(rect.left, rect.bottom - SELECTOR_RADIUS, SELECTOR_RADIUS, SELECTOR_RADIUS))
         pygame.draw.ellipse(
             surface,
-            SELECTOR_COLOR,
+            selector_color,
             pygame.Rect(
                 rect.left, rect.bottom - 2 * SELECTOR_RADIUS, 2 * SELECTOR_RADIUS, 2 * SELECTOR_RADIUS
             ),
@@ -189,7 +191,7 @@ class Game(object):
                                    SELECTOR_RADIUS))
         pygame.draw.ellipse(
             surface,
-            SELECTOR_COLOR,
+            selector_color,
             pygame.Rect(
                 rect.right - 2 * SELECTOR_RADIUS, rect.bottom - 2 * SELECTOR_RADIUS, 2 * SELECTOR_RADIUS, 2 * SELECTOR_RADIUS
             ),
@@ -215,6 +217,8 @@ class Game(object):
             self.__right()
         elif action == PLACE:
             result = self.__place()
+
+        if result:
             self.__end_turn()
 
         return result
