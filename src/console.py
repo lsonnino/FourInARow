@@ -102,7 +102,7 @@ class Console(object):
             result, action, next_state = self.game.play(self)
 
             if not result:
-                reward -= 5
+                reward -= 10
 
         self.winner = self.game.check_winners()
         if self.winner != constants.EMPTY_PIECE:

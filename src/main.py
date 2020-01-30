@@ -25,6 +25,8 @@ def set_session():
         ai_settings.set_exploration(min_exp=0.001, max_exp=0.001)
     elif EXPLORATION_RATE_MODEL == NO_EXPLORATION_RATE_MODEL:
         ai_settings.set_exploration(min_exp=0, max_exp=0)
+    elif EXPLORATION_RATE_MODEL == CUSTOM_EXPLORATION_RATE_MODEL:
+        ai_settings.set_exploration(min_exp=0.01, max_exp=0.3897)
 
     if PLAYERS == HUMAN_VS_HUMAN:
         IS_PLAYER_1_AI = False
@@ -113,6 +115,9 @@ def main():
                 if PLAYERS == AI_VS_AI or not console.pause:
                     break
 
+        if not console.has_game_ended():
+            break
+
         console.reset()
 
         print(" done \t\t end greed: " + str(round(ai.agent.epsilon * 100, 2)) + "%")
@@ -124,6 +129,7 @@ def main():
         ai_gen += 1
 
     console.quit()
+    ai.agent.close()
 
 
 set_session()
